@@ -743,6 +743,7 @@ class AlarmController:
         for cookie in self._websession.cookie_jar:
             if cookie.key == self.LOGIN_TWO_FACTOR_COOKIE_NAME:
                 log.debug("Found two-factor authentication cookie: %s", cookie.value)
+                print(f"Two-factor authentication cookie: {cookie.value}")
                 self._two_factor_cookie = {"twoFactorAuthenticationId": cookie.value} if cookie.value else {}
                 return
 
