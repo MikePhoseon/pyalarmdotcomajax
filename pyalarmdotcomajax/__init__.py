@@ -950,9 +950,15 @@ class AlarmController:
 
                 await self._async_handle_server_errors(json_rsp, "active system", retry_on_failure)
 
-                return str(
-                    next(system["id"] for system in json_rsp.get("data", []) + json_rsp.get("included", []) if system["attributes"]["isSelected"])
-                )
+                all_systems = json_rsp.get("data", []) + json_rsp.get("included", [])
+                # Groups (e.g. multi-location business accounts) have unitId=None; real systems don't.
+                real_systems = [s for s in all_systems if s["attributes"].get("unitId") is not None]
+                selected = next((s["id"] for s in real_systems if s["attributes"]["isSelected"]), None)
+                if selected is None and real_systems:
+                    selected = real_systems[0]["id"]
+                if selected is None:
+                    raise KeyError("No real (non-group) system found in response.")
+                return str(selected)
 
         except (aiohttp.ClientResponseError, KeyError) as err:
             log.exception("Failed to get active system.")
