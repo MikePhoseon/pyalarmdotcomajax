@@ -950,7 +950,7 @@ class AlarmController:
                 await self._async_handle_server_errors(json_rsp, "active system", retry_on_failure)
 
                 return str(
-                    next(system["id"] for system in json_rsp.get("data", []) if system["attributes"]["isSelected"])
+                    next(system["id"] for system in json_rsp.get("data", []) + json_rsp.get("included", []) if system["attributes"]["isSelected"])
                 )
 
         except (aiohttp.ClientResponseError, KeyError) as err:
